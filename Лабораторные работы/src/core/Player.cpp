@@ -5,13 +5,11 @@
 
 Player::Player(const std::string& player_name, PlayerType player_type,
                std::shared_ptr<ShipManager> ship_manager,
-               std::unique_ptr<AbilityManager> ability_manager,
                int field_width, int field_height)
     : name_(player_name),
       type_(player_type),
       field_(std::make_unique<PlayingField>(field_width, field_height)),
       ship_manager_(std::move(ship_manager)),
-      ability_manager_(std::move(ability_manager)),
       destroyed_ships_(0),
       hit_count_(0),
       all_shots_(0) {}
@@ -126,7 +124,7 @@ void Player::set_ship_manager(std::shared_ptr<ShipManager> ship_manager) {
 }
 
 
-void Player::set_ability_manager(std::unique_ptr<AbilityManager> ability_manager) { 
+void Player::set_ability_manager(std::shared_ptr<AbilityManager> ability_manager) { 
     ability_manager_ = std::move(ability_manager); 
 }
 

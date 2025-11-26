@@ -123,7 +123,7 @@ private:
     std::unique_ptr<Player> human_player_;
     std::unique_ptr<Player> ai_player_;
     std::shared_ptr<ShipManager> ship_manager_;
-    std::unique_ptr<AbilityManager> ability_manager_;
+    std::shared_ptr<AbilityManager> ability_manager_;
     std::string human_name_;
     GameState current_state_;
     GameSettings settings_;

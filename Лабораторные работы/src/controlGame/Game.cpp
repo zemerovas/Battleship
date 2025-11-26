@@ -32,8 +32,8 @@ void Game::CreateShipManager(){
 void Game::Initialize(){
     const int size = settings_.field_size();
     CreateShipManager();
-    human_player_ = std::make_unique<Player>(human_name_, PlayerType::HUMAN, ship_manager_, std::move(ability_manager_), size, size);
-    ai_player_ = std::make_unique<Player>("AI", PlayerType::AI, ship_manager_, nullptr, size, size);
+    human_player_ = std::make_unique<Player>(human_name_, PlayerType::HUMAN, ship_manager_, size, size);
+    ai_player_ = std::make_unique<Player>("AI", PlayerType::AI, ship_manager_, size, size);
     set_players(std::move(human_player_), std::move(ai_player_));
 }
 
@@ -190,6 +190,7 @@ AttackResult Game::AttackShip() {
 }
 
 AbilityResult Game::UseAbility(int x, int y) {
+    if (!ability_manager_) return {"", -1, -1};
     auto coordinates = human_player_->UseAbility(x, y);
     auto ability_name = ability_manager_->ability_name(); 
     if (coordinates.first != -1) {
@@ -357,6 +358,7 @@ bool Game::IsNotRunning() {
 
 
 std::string Game::ShowAbility() const{
+    if (!ability_manager_) return "Способности не инициализированы";
     return ability_manager_->PeekNextAbility();  
 }
 
@@ -366,8 +368,8 @@ void Game::set_players(std::unique_ptr<Player> human, std::unique_ptr<Player> ai
 
     ship_manager_ = human_player_->ship_manager();
 
-    ability_manager_ = std::make_unique<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
-    human_player_->set_ability_manager(std::move(ability_manager_)); 
+    ability_manager_ = std::make_shared<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
+    human_player_->set_ability_manager(ability_manager_); 
 
     current_state_.set_game_status(GameStatus::PLACING_SHIPS);
     current_state_.set_cursor(0, 0);
@@ -536,8 +538,8 @@ void Game::LoadStateFromLastRound() {
     int x_size = current_state_.player_field_state().x_size();
     int y_size = current_state_.player_field_state().y_size();
 
-    human_player_ = std::make_unique<Player>("Игрок", PlayerType::HUMAN, ship_manager_, nullptr, x_size, y_size);
-    ai_player_    = std::make_unique<Player>("ИИ",    PlayerType::AI,    ship_manager_, nullptr, x_size, y_size);
+    human_player_ = std::make_unique<Player>("Игрок", PlayerType::HUMAN, ship_manager_, x_size, y_size);
+    ai_player_    = std::make_unique<Player>("ИИ",    PlayerType::AI,    ship_manager_, x_size, y_size);
 
     human_player_->field_for_modification() = current_state_.player_field_state();
     ai_player_->field_for_modification()    = current_state_.enemy_field_state();
@@ -545,8 +547,8 @@ void Game::LoadStateFromLastRound() {
     human_player_->field_for_modification().ReturnStartState();
     ai_player_->field_for_modification().ReturnStartState();
 
-    ability_manager_ = std::make_unique<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
-    human_player_->set_ability_manager(std::move(ability_manager_));
+    ability_manager_ = std::make_shared<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
+    human_player_->set_ability_manager(ability_manager_);
 
     current_state_.set_game_status(GameStatus::SETTING_SHIPS);
 }
@@ -595,15 +597,15 @@ void Game::LoadGameState() {
     int x_size = current_state_.player_field_state().x_size();
     int y_size = current_state_.player_field_state().y_size();
 
-    human_player_ = std::make_unique<Player>("Игрок", PlayerType::HUMAN, ship_manager_, nullptr, x_size, y_size);
-    ai_player_    = std::make_unique<Player>("ИИ",    PlayerType::AI,    ship_manager_, nullptr, x_size, y_size);
+    human_player_ = std::make_unique<Player>("Игрок", PlayerType::HUMAN, ship_manager_, x_size, y_size);
+    ai_player_    = std::make_unique<Player>("ИИ",    PlayerType::AI,    ship_manager_, x_size, y_size);
 
     human_player_->field_for_modification() = current_state_.player_field_state();
     ai_player_->field_for_modification()    = current_state_.enemy_field_state();
 
     
-    ability_manager_ = std::make_unique<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
-    human_player_->set_ability_manager(std::move(ability_manager_));
+    ability_manager_ = std::make_shared<AbilityManager>(ai_player_->field_for_modification(), human_player_->field_for_modification());
+    human_player_->set_ability_manager(ability_manager_);
 
     {
         auto ps = current_state_.player_stats();
@@ -625,7 +627,7 @@ void Game::LoadGameState() {
 }
 
 
-GameState&       Game::current_state()       { 
+GameState& Game::current_state()       { 
     return current_state_; 
 }
 

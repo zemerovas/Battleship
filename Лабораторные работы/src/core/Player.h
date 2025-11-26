@@ -18,7 +18,6 @@ class Player {
 public:
     Player(const std::string& player_name, PlayerType player_type,
                std::shared_ptr<ShipManager> ship_manager,
-               std::unique_ptr<AbilityManager> ability_manager,
                int field_width, int field_height);
 
     bool IsAllShipsDestroyed() const;
@@ -47,7 +46,7 @@ public:
     std::shared_ptr<ShipManager> ship_manager() const;
     void set_ship_manager(std::shared_ptr<ShipManager> ship_manager);
 
-    void set_ability_manager(std::unique_ptr<AbilityManager> ability_manager);
+    void set_ability_manager(std::shared_ptr<AbilityManager> ability_manager);
 
     float accuracy() const;
     int remaining_ships() const;
@@ -60,7 +59,7 @@ private:
     PlayerType type_;
     std::unique_ptr<PlayingField> field_;
     std::shared_ptr<ShipManager> ship_manager_;
-    std::unique_ptr<AbilityManager> ability_manager_;
+    std::shared_ptr<AbilityManager> ability_manager_;
     int destroyed_ships_;
     int hit_count_;
     int all_shots_;
